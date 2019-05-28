@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: demoserver-internal
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internal
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/tags: Environment=dev,Team=test
+spec:
+  rules:
+    - host: cms.demo.local
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: customer
+              servicePort: 8080
+    - host: ticket.demo.local
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: product
+              servicePort: 8080

@@ -1,0 +1,31 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: demoserver
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/tags: Environment=dev,Team=test
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            backend:
+              serviceName: order
+              servicePort: 80
+
+  # rules:
+  #   - host: echoserver.example.com
+  #     http:
+  #       paths:
+  #         - path: /
+  #           backend:
+  #             serviceName: customer
+  #             servicePort: 8080
+  #         - path: /product
+  #           backend:
+  #             serviceName: product
+  #             servicePort: 8080

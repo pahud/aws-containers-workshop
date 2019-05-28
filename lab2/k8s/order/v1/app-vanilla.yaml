@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: order
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        microsvc: order
+    spec:
+      containers:
+      - name: order
+        image: pahud/aws-container-workshop-service:order-latest
+        imagePullPolicy: Always
+        env:       
+        - name: "SERVICENAME"
+          value: "Order"                  
+        - name: "VERSIONNUM"
+          value: "1.0"    
+        - name: "PRODUCT_SVC_URL"
+          value: "http://product.default.svc.cluster.local:8080"         
+        - name: "CUSTOMER_SVC_URL"
+          value: "http://customer.default.svc.cluster.local:8080"     
+        ports:
+        - name: order
+          containerPort: 8080
+---          
+apiVersion: v1
+kind: Service
+metadata:
+  name: order
+  labels:
+    microsvc: order
+spec:
+  selector:
+    microsvc: order
+  type: LoadBalancer
+  ports:
+   - port: 80
+     name: http
+     targetPort: 8080
+     protocol: TCP 

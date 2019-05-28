@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: product
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        microsvc: product
+    spec:
+      containers:
+      - name: product
+        image: pahud/aws-container-workshop-service:latest
+        imagePullPolicy: Always
+        env:       
+        - name: "SERVICENAME"
+          value: "Product"                  
+        - name: "VERSIONNUM"
+          value: "1.0"                  
+        ports:
+        - name: product
+          containerPort: 8080
+---          
+apiVersion: v1
+kind: Service
+metadata:
+  name: product
+  labels:
+    microsvc: product
+spec:
+  selector:
+    microsvc: product
+  type: ClusterIP
+  ports:
+   - port: 8080
+     name: http
+     targetPort: 8080
+     protocol: TCP 
