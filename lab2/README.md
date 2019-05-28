@@ -1,5 +1,9 @@
 # Lab 2 - Running Services in Amazon EKS
 
+![](../images/02.png)
+
+
+
 ## Create cluster with eksctl
 
 ```bash
