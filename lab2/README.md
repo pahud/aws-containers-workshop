@@ -130,8 +130,8 @@ I0529 06:57:29.209351       1 targetgroup.go:138] default/demoserver: target gro
 
 describe the ingress object
 
-```
-ng/demoserver
+```bash
+$ kubectl describe ing/demoserver
 Name:             demoserver
 Namespace:        default
 Address:          6fa5d906-default-demoserve-f046-287152812.ap-northeast-1.elb.amazonaws.com
@@ -153,16 +153,16 @@ Events:
   ----    ------  ----  ----                    -------
   Normal  CREATE  5m9s  alb-ingress-controller  LoadBalancer 6fa5d906-default-demoserve-f046 created, ARN: arn:aws:elasticloadbalancing:ap-northeast-1:903779448426:loadbalancer/app/6fa5d906-default-demoserve-f046/9f2118462cbaed2f
   Normal  CREATE  5m8s  alb-ingress-controller  rule 1 created with conditions [{    Field: "path-pattern",    Values: ["/"]  }]
-  ```
-  
+```
+
   curl the ALB endpoint
-  
-  ```
+
+  ```bash
   $ curl -s 6fa5d906-default-demoserve-f046-287152812.ap-northeast-1.elb.amazonaws.com
 {"service":"Order", "version":"1.0"}
 {"service":"Customer","version":"1.0"}
 {"service":"Product","version":"1.0"}
-```
+  ```
 
 Please note now we have both `CLB` and `ALB` for the `Order` service.
 
@@ -180,7 +180,8 @@ $ curl -s ab1b609de809611e9954f0e9b12d942b-797135816.ap-northeast-1.elb.amazonaw
 kubectl get ing/demoserver -o jsonpath='{@.status.loadBalancer.ingress[0].hostname}'
 6fa5d906-default-demoserve-f046-287152812.ap-northeast-1.elb.amazonaws.com
 # try curl on it
-$ curl -s 6fa5d906-default-demoserve-f046-287152812.ap-northeast-1.elb.amazonaws.com{"service":"Order", "version":"1.0"}
+$ curl -s 6fa5d906-default-demoserve-f046-287152812.ap-northeast-1.elb.amazonaws.com
+{"service":"Order", "version":"1.0"}
 {"service":"Customer","version":"1.0"}
 {"service":"Product","version":"1.0"}
 ```
