@@ -1,6 +1,6 @@
 # Lab 1 - Running Services in AWS Fargate
 
-![](../images/01.png)
+![](../images/lab1-all-in-fargate.png)
 
 
 

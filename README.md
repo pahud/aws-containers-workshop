@@ -24,12 +24,12 @@ The architecture containers 3 micro services:
 
 [Start the Lab](lab2/README.md)
 
-![](images/all-in-eks-clb-alb.png)
+![](images/lab1-all-in-eks-clb-alb.png)
 
 
 
-![](images/03.png)
+![](images/lab2-all-in-eks-single-external-alb.png)
 
 
 
-![](images/04.png)
+![](images/lab2-hybrid-fargate-eks.png)
