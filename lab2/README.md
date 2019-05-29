@@ -1,6 +1,6 @@
 # Lab 2 - Running Services in Amazon EKS
 
-![](images/all-in-eks-clb-alb.png)
+![](../images/all-in-eks-clb-alb.png)
 
 In this lab, we are deploying our microservices in Amazon EKS and expose the `Order` service as `CLB` or `ALB`.
 
