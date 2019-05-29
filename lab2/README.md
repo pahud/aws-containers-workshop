@@ -297,3 +297,9 @@ Now the external traffic goes through `www-lb`(external ALB) to Fargate task whi
 
 
 
+## Using external-dns and AWS Cloud Map for service registry on Route53
+
+It's possible to use **external-dns** for service discovery and service registration via **AWS CloudMap** API onto **Route53** without manual configuration. Please check my [tweet](https://twitter.com/pahudnet/status/1108720149119426560) for some details. I will complete tutorial about this very soon.
+
+
+
