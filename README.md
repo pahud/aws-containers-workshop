@@ -5,10 +5,8 @@ This repo aims to help you build a 3-tier e-commerce microservices on **AWS Farg
 The architecture containers 3 micro services:
 
 1. **Order** - public-facing API for ticket ordering
-2. **Ticket** - order orchistration and processing
-3. **CMS** - customer system
-
-
+2. **Product** - product system
+3. **Customer** - customer system
 
 ## Lab 1 - All-In AWS 
 
