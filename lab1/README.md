@@ -1,5 +1,9 @@
 # Lab 1 - Running Services in AWS Fargate
 
+![](../images/01.png)
+
+
+
 ## Create Cloud9 Environment
 
 Open [AWS Cloud9 console](https://ap-northeast-1.console.aws.amazon.com/cloud9) and click **Create Environment** to create your cloud IDE.

@@ -5,10 +5,10 @@
 In this lab, we are deploying our microservices in Amazon EKS and expose the `Order` service as `CLB` or `ALB`.
 
 
-## create cluster with eksctl
+## Create cluster with eksctl
 
 ```bash
-# download and install eksctl from eksctl.io 
+# download and install eksctl from eksc tl.io 
 $ curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/latest_release/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
 $ sudo mv /tmp/eksctl /usr/local/bin
 $ eksctl version 
