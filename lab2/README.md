@@ -15,7 +15,7 @@ $ eksctl version
 [ℹ]  version.Info{BuiltAt:"", GitCommit:"", GitTag:"0.1.32"}
 # create Amazon EKS cluster with eksctl
 $ export AWS_REGION=ap-northeast-1
-$ eksctl create cluster --name myeks
+$ eksctl create cluster --name myeks --zones ap-northeast-1b,ap-northeast-1c,ap-northeast-1d
 # (this may take up to 15min)
 # get the nodes
 $ kubectl get no
