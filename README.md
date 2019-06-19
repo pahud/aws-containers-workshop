@@ -8,7 +8,7 @@ The architecture containers 3 micro services:
 2. **Product** - product system
 3. **Customer** - customer system
 
-## Lab 1 - All-In AWS 
+## Lab 1 - All-In AWS Fargate
 
 [Start the Lab](lab1/README.md)
 
