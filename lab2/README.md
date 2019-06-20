@@ -1,6 +1,6 @@
 # Lab 2 - Running Services in Amazon EKS
 
-![](images/all-in-eks-clb-alb.png)
+![](../images/lab1-all-in-eks-clb-alb.png)
 
 In this lab, we are deploying our microservices in Amazon EKS and expose the `Order` service as `CLB` or `ALB`.
 
@@ -15,7 +15,7 @@ $ eksctl version
 [ℹ]  version.Info{BuiltAt:"", GitCommit:"", GitTag:"0.1.32"}
 # create Amazon EKS cluster with eksctl
 $ export AWS_REGION=ap-northeast-1
-$ eksctl create cluster --name myeks
+$ eksctl create cluster --name myeks --zones ap-northeast-1b,ap-northeast-1c,ap-northeast-1d
 # (this may take up to 15min)
 # get the nodes
 $ kubectl get no
@@ -41,7 +41,9 @@ $ curl a98c44c72809711e995940a063a6e1fe-571914798.ap-northeast-1.elb.amazonaws.c
 {"service":"Product","version":"1.0"}
 ```
 Please note we just exposed the `Order` service with `LoadBalancer` service type, which is 
-`Classic Load Balancer`. Now let's create an **AWS ALB Ingress** for it.
+`Classic Load Balancer`. Now let's create an **AWS ALB Ingress** for it. The new diagram would be like this:
+
+![](../images/lab1-all-in-eks-clb-alb.png)
 
 As we are going to install `aws-alb-ingress-controller` with `Helm`, let's install `Helm` first.
 
@@ -130,8 +132,8 @@ I0529 06:57:29.209351       1 targetgroup.go:138] default/demoserver: target gro
 
 describe the ingress object
 
-```
-ng/demoserver
+```bash
+$ kubectl describe ing/demoserver
 Name:             demoserver
 Namespace:        default
 Address:          6fa5d906-default-demoserve-f046-287152812.ap-northeast-1.elb.amazonaws.com
@@ -153,16 +155,16 @@ Events:
   ----    ------  ----  ----                    -------
   Normal  CREATE  5m9s  alb-ingress-controller  LoadBalancer 6fa5d906-default-demoserve-f046 created, ARN: arn:aws:elasticloadbalancing:ap-northeast-1:903779448426:loadbalancer/app/6fa5d906-default-demoserve-f046/9f2118462cbaed2f
   Normal  CREATE  5m8s  alb-ingress-controller  rule 1 created with conditions [{    Field: "path-pattern",    Values: ["/"]  }]
-  ```
-  
+```
+
   curl the ALB endpoint
-  
-  ```
+
+  ```bash
   $ curl -s 6fa5d906-default-demoserve-f046-287152812.ap-northeast-1.elb.amazonaws.com
 {"service":"Order", "version":"1.0"}
 {"service":"Customer","version":"1.0"}
 {"service":"Product","version":"1.0"}
-```
+  ```
 
 Please note now we have both `CLB` and `ALB` for the `Order` service.
 
@@ -180,9 +182,124 @@ $ curl -s ab1b609de809611e9954f0e9b12d942b-797135816.ap-northeast-1.elb.amazonaw
 kubectl get ing/demoserver -o jsonpath='{@.status.loadBalancer.ingress[0].hostname}'
 6fa5d906-default-demoserve-f046-287152812.ap-northeast-1.elb.amazonaws.com
 # try curl on it
-$ curl -s 6fa5d906-default-demoserve-f046-287152812.ap-northeast-1.elb.amazonaws.com{"service":"Order", "version":"1.0"}
+$ curl -s 6fa5d906-default-demoserve-f046-287152812.ap-northeast-1.elb.amazonaws.com
+{"service":"Order", "version":"1.0"}
 {"service":"Customer","version":"1.0"}
 {"service":"Product","version":"1.0"}
 ```
+
+
+
+## All services behind an external ALB
+
+
+
+![](../images/lab2-all-in-eks-single-external-alb.png)
+
+
+
+```bash
+# update your ingress object and place 3 services behind single external ALB
+$ kubectl apply -f ingress-public-all-svcs.yaml
+```
+
+
+
+## Hybrid AWS Fargate and Amazon EKS
+
+![](../images/lab2-hybrid-fargate-eks.png)
+
+```bash
+# create an external lb and www service with fargate CLI just like lab1
+$ export AWS_REGION=ap-northeast-1
+# create external-lb for www service. Make sure you specify the --subnet-id and security-group-id of the same VPC with where Amazon EKS nodegroup resides
+ $ fargate lb create www-lb --subnet-id subnet-05b643f57a6997deb,subnet-09e79eb1dec82b7e2,subnet-0c365d97cbc75ceec --port 80 --security-group-id
+# list the lb
+$ $ fargate lb info www-lb
+Load Balancer Name: www-lb
+Status: provisioning
+Type: application
+DNS Name: www-lb-1928897535.ap-northeast-1.elb.amazonaws.com
+Subnets: subnet-05b643f57a6997deb, subnet-09e79eb1dec82b7e2, subnet-0c365d97cbc75ceec
+Security Groups: sg-7cc1df18
+Ports: 
+  HTTP:80: 
+    Rules: 
+      None
+# create the www service
+$ fargate service create www --lb www-lb \
+--image pahud/aws-container-workshop-service:order-latest \
+--env SERVICENAME=www \
+--env VERSIONNUM=1.0 \
+-e PRODUCT_SVC_URL=http://ticket.demo.local \
+-e CUSTOMER_SVC_URL=http://cms.demo.local \
+--subnet-id subnet-05b643f57a6997deb,subnet-09e79eb1dec82b7e2,subnet-0c365d97cbc75ceec \
+--security-group-id sg-7cc1df18 \
+--port http:8080
+[i] Created service www
+
+# create an ingress object for customer and product behind internal ALB
+$ kubectl apply -f ingress-private.yaml
+# get the hostname of internal ALB
+$ kubectl get ing/demoserver-internal -o jsonpath='{@.status.loadBalancer.ingress[0].hostname}'
+internal-6fa5d906-default-demoserve-55c0-412376997.ap-northeast-1.elb.amazonaws.com
+
+# create a private zone as 'demo.local' in Route53 as described in Lab1. Alias 'cms.demo.local' and 'ticket.demo.local' to the internal ALB.
+# nslookup from the cloud9 terminal in the same VPC
+$ nslookup cms.demo.local
+Server:         10.0.0.2
+Address:        10.0.0.2#53
+
+Non-authoritative answer:
+Name:   cms.demo.local
+Address: 10.0.111.235
+Name:   cms.demo.local
+Address: 10.0.112.121
+Name:   cms.demo.local
+Address: 10.0.113.130
+
+$ nslookup ticket.demo.local
+Server:         10.0.0.2
+Address:        10.0.0.2#53
+
+Non-authoritative answer:
+Name:   ticket.demo.local
+Address: 10.0.112.121
+Name:   ticket.demo.local
+Address: 10.0.111.235
+Name:   ticket.demo.local
+Address: 10.0.113.130
+
+# let's get www-lb DNS name created by fargate cli
+$ fargate lb info www-lb
+Load Balancer Name: www-lb
+Status: provisioning
+Type: application
+DNS Name: www-lb-1159287696.ap-northeast-1.elb.amazonaws.com
+Subnets: subnet-1d040645, subnet-a68ad08e, subnet-a7f831ee
+Security Groups: sg-ca99d4b2
+Ports: 
+  HTTP:80: 
+    Rules: 
+     0  DEFAULT=  www
+
+# check the DNS name of www-lb
+$ fargate lb info www-lb | grep DNS
+DNS Name: www-lb-1928897535.ap-northeast-1.elb.amazonaws.com
+# curl on it now
+$ curl www-lb-1928897535.ap-northeast-1.elb.amazonaws.com
+{"service":"www", "version":"1.0"}
+{"service":"Customer","version":"1.0"}
+{"service":"Product","version":"1.0"}
+```
+
+Now the external traffic goes through `www-lb`(external ALB) to Fargate task which forks 2 sub-requests to `Customer` and `Product` k8s service through the internal ALB, aggregating the response and return to the client.
+
+
+
+## Using external-dns and AWS Cloud Map for service registry on Route53
+
+It's possible to use **external-dns** for service discovery and service registration via **AWS CloudMap** API onto **Route53** without manual configuration. Please check my [tweet](https://twitter.com/pahudnet/status/1108720149119426560) for some details. I will complete tutorial about this very soon.
+
 
 

@@ -5,18 +5,16 @@ This repo aims to help you build a 3-tier e-commerce microservices on **AWS Farg
 The architecture containers 3 micro services:
 
 1. **Order** - public-facing API for ticket ordering
-2. **Ticket** - order orchistration and processing
-3. **CMS** - customer system
+2. **Product** - product system
+3. **Customer** - customer system
 
-
-
-## Lab 1 - All-In AWS 
+## Lab 1 - All-In AWS Fargate
 
 [Start the Lab](lab1/README.md)
 
 
 
-![](images/01.png)
+![](images/lab1-all-in-fargate.png)
 
 
 
@@ -24,13 +22,12 @@ The architecture containers 3 micro services:
 
 [Start the Lab](lab2/README.md)
 
-![](images/02.png)
+![](images/lab1-all-in-eks-clb-alb.png)
 
 
 
-![](images/03.png)
+![](images/lab2-all-in-eks-single-external-alb.png)
 
 
 
-![](images/04.png)
-
+![](images/lab2-hybrid-fargate-eks.png)
