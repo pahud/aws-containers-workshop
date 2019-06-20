@@ -60,7 +60,7 @@ func fetchServices() []string {
 func main() {
 
 	r := gin.Default()
-	r.GET("/", func(c *gin.Context) {
+	r.Any("/*proxyPath", func(c *gin.Context) {
 		serviceName, versionNum := "undefined", "undefined"
 
 		if v, ok := os.LookupEnv("SERVICENAME"); ok {
